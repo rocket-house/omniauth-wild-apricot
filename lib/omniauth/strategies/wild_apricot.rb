@@ -40,7 +40,7 @@ module OmniAuth
       end
 
       def client
-        ::OAuth2::Client.new(options.client_id, options.client_secret, client_options)
+        ::OAuth2::Client.new(options.client_id, options.client_secret, deep_symbolize(client_options))
       end
 
       uid { raw_info['Id'].to_s }
