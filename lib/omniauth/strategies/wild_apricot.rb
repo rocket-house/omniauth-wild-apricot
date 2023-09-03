@@ -14,6 +14,13 @@ module OmniAuth
 
       option :name, 'wild_apricot'
 
+      # override the base class param functions -- this
+      # allows us to use values in the `options` hash at
+      # run time insead of setting the values at load time
+      #
+      # the options hash contains user-defined values not
+      # available at class load time
+
       def authorize_params
         super.merge({
           scope: DEFAULT_SCOPE,
@@ -30,6 +37,9 @@ module OmniAuth
         })
       end
 
+      # pull values from the options hash at run time instead
+      # of static values at class load time (using `option`)
+
       def client_options
         {
           site: options.site,
@@ -38,9 +48,14 @@ module OmniAuth
         }
       end
 
+      # override the default client so we can use the `client_options`
+      # funciton instead of the values set via the `option` function
+
       def client
         ::OAuth2::Client.new(options.client_id, options.client_secret, deep_symbolize(client_options))
       end
+
+      # standard strategy implementation stuff below here
 
       uid { raw_info['Id'].to_s }
 
@@ -67,7 +82,7 @@ module OmniAuth
         full_host + script_name + callback_path
       end
 
-      private
+      private #######################################################
 
       def contact_url
         "#{BASE_API_URL}/Accounts/#{options.account_num}/Contacts/Me"
