@@ -64,8 +64,7 @@ Devise.setup do |config|
   config.omniauth :wild_apricot, ENV['WA_CLIENT_ID'], ENV['WA_CLIENT_SECRET'],
     {
       account_num: ENV['WA_ACCT_NUM'], # found at: https://myWAsite.com/admin/billing/
-      site_url: ENV['WA_SITE_URL'],    # set to: 'https://myWAsite.com/'
-      callback_path: '/path/to/callback'
+      site_url: ENV['WA_SITE_URL']     # set to: 'https://myWAsite.com/'
     }
 
   # other stuff...
