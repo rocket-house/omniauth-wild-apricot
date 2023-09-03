@@ -24,7 +24,6 @@ module OmniAuth
 
       def token_params
         super.merge({
-          scope: DEFAULT_SCOPE,
           headers: {
             'Authorization' => "Basic #{authorization_header}"
           },
