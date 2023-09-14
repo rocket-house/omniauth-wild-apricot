@@ -6,9 +6,11 @@ For more details, read the WildApricot docs: https://gethelp.wildapricot.com/en/
 
 ## Installation
 
-First start by adding this gem to your Gemfile:
+First start by adding this gem and its dependencies to your Gemfile:
 
 ```ruby
+gem 'omniauth', '~> 2.0'
+gem "omniauth-rails_csrf_protection"
 gem 'omniauth-wild-apricot'
 ```
 
@@ -48,10 +50,37 @@ Rails.application.config.middleware.use OmniAuth::Builder do
     {
       account_num: ENV['WA_ACCT_NUM'], # found at: https://myWAsite.com/admin/billing/
       site_url: ENV['WA_SITE_URL'],    # set to: 'https://myWAsite.com/'
-      callback_path: '/path/to/callback'
+      callback_path: '/callback/wild_apricot' # must match your session controller route
     }
 end
 ```
+
+You'll need some routes to handle the callback, and a session controller:
+
+```ruby
+Rails.application.routes.draw do
+  ...
+
+  # Routes for OmniAuth
+  # Wild Apricot uses GET route; use POST for other providers
+  # post '/auth/:provider/callback', to: 'sessions#create'
+  get '/callback/:provider', to: 'sessions#create'
+  get '/logout', to: 'sessions#destroy', as: :logout
+
+end
+```
+
+For your views you can login using:
+
+```erb
+<%# omniauth-wild-apricot 0.1.x uses OmniAuth 2 and requires using HTTP Post to initiate authentication: %>
+<%= link_to "Sign in with Wild Apricot", '/auth/wild_apricot', method: :post %>
+
+<%# when using rails 7.0+ with turbo-links, you'll need to bypass turbo; you *must* use botton_to %>
+<%= button_to "Sign in with Wild Apricot", '/auth/wild_apricot', method: :post, 'data-turbo': false %>
+```
+
+Note: the route `/auth/wild_apricot` comes included with omniauth (`/auth/:provider`)
 
 ## Usage using Devise
 
@@ -127,14 +156,11 @@ end
 For your views you can login using:
 
 ```erb
-<%# omniauth-wild-apricot 1.0.x uses OmniAuth 2 and requires using HTTP Post to initiate authentication: %>
-<%= link_to "Sign in with Wild Apricot", user_wild_apricot_omniauth_authorize_path, method: :post %>
+<%# omniauth-wild-apricot 0.1.x uses OmniAuth 2 and requires using HTTP Post to initiate authentication: %>
+<%= link_to "Sign in with Wild Apricot", '/auth/wild_apricot', method: :post %>
 
-<%# omniauth-wild-apricot prior 1.0.0: %>
-<%= link_to "Sign in with Wild Apricot", user_wild_apricot_omniauth_authorize_path %>
-
-<%# Devise prior 4.1.0: %>
-<%= link_to "Sign in with Wild Apricot", user_omniauth_authorize_path(:wild_apricot) %>
+<%# when using rails 7.0+ with turbo-links, you'll need to bypass turbo; you *must* use botton_to %>
+<%= button_to "Sign in with Wild Apricot", '/auth/wild_apricot', method: :post, 'data-turbo': false %>
 ```
 
 An overview is available at https://github.com/plataformatec/devise/wiki/OmniAuth:-Overview
